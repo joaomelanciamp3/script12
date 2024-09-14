@@ -26,111 +26,117 @@ local Settings = {
     AllGamepasses = true -- Todas as gamepasses, incluindo frutas permanentes
 }
 
--- Função para atualizar o texto do botão
-local function updateButtonText(button, settingName)
-    button.Text = settingName .. ": " .. tostring(Settings[settingName])
-end
+-- IDs dos gamepasses
+local GamepassIDs = {
+    Yoru = 6028786, -- ID para Yoru
+    NotificadorDeFruta = 6738811, -- ID para Notificador de Fruta
+    TwoXDrop = 7578721, -- ID para 2x Drop
+    TwoXBounty = 6240746, -- ID para 2x Bounty
+    TwoXMoney = 6028662, -- ID para 2x Money
+    BarcoRapido = 6525589 -- ID para Barco Rápido
+}
 
 -- Função para criar a interface
 local function createUI()
-    local function createToggleButton(settingName, initialValue, callback)
+    local function Button(props)
         return Roact.createElement("TextButton", {
-            Text = settingName .. ": " .. tostring(initialValue),
             Size = UDim2.new(1, -20, 0, 50),
-            BackgroundColor3 = initialValue and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0),
-            TextColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+            TextColor3 = Color3.fromRGB(255, 165, 0),
             Font = Enum.Font.SourceSansBold,
             TextSize = 24,
-            [Roact.Event.Activated] = function(button)
-                callback(button)
-                updateButtonText(button, settingName)
-            end,
+            Text = props.text,
+            [Roact.Event.Activated] = props.onActivated
         })
     end
 
-    local frame = Roact.createElement("Frame", {
-        Size = UDim2.new(0, 400, 0, 600),
-        Position = UDim2.new(0.5, -200, 0.5, -300),
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        BorderColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0.5,
-        ZIndex = 2
-    }, {
-        UIListLayout = Roact.createElement("UIListLayout", {
-            Padding = UDim.new(0, 10),
-            FillDirection = Enum.FillDirection.Vertical,
-            HorizontalAlignment = Enum.HorizontalAlignment.Center,
-            VerticalAlignment = Enum.VerticalAlignment.Top,
-        }),
-        Title = Roact.createElement("TextLabel", {
-            Text = "Script Settings",
-            Size = UDim2.new(1, 0, 0, 50),
-            BackgroundColor3 = Color3.fromRGB(0, 255, 0),
-            TextColor3 = Color3.fromRGB(0, 0, 0),
-            Font = Enum.Font.SourceSansBold,
-            TextSize = 24,
-            TextStrokeTransparency = 0.5,
-            TextWrapped = true,
-        }),
-        AutoFarmToggle = createToggleButton("Auto Farm", Settings.AutoFarm, function(button)
-            Settings.AutoFarm = not Settings.AutoFarm
-            button.BackgroundColor3 = Settings.AutoFarm and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        end),
-        InfiniteFragmentsToggle = createToggleButton("Infinite Fragments", Settings.InfiniteFragments, function(button)
-            Settings.InfiniteFragments = not Settings.InfiniteFragments
-            button.BackgroundColor3 = Settings.InfiniteFragments and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        end),
-        AllItemsToggle = createToggleButton("All Items", Settings.AllItems, function(button)
-            Settings.AllItems = not Settings.AllItems
-            button.BackgroundColor3 = Settings.AllItems and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        end),
-        GainLevelOnClick = Roact.createElement("TextButton", {
-            Text = "Gain Level on Click",
-            Size = UDim2.new(1, -20, 0, 50),
-            BackgroundColor3 = Color3.fromRGB(0, 255, 0),
-            TextColor3 = Color3.fromRGB(0, 0, 0),
-            Font = Enum.Font.SourceSansBold,
-            TextSize = 24,
-            [Roact.Event.Activated] = function()
-                local player = game.Players.LocalPlayer
-                if player and player:FindFirstChild("Level") then
-                    player.Level.Value = player.Level.Value + 1
+    local function SettingsUI(props)
+        return Roact.createElement("Frame", {
+            Size = UDim2.new(0, 400, 0, 600),
+            Position = UDim2.new(0.5, -200, 0.5, -300),
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+        }, {
+            UIListLayout = Roact.createElement("UIListLayout", {
+                Padding = UDim.new(0, 10),
+                FillDirection = Enum.FillDirection.Vertical,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Top,
+            }),
+            Title = Roact.createElement("TextLabel", {
+                Text = "Script Settings",
+                Size = UDim2.new(1, 0, 0, 50),
+                BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+                TextColor3 = Color3.fromRGB(255, 165, 0),
+                Font = Enum.Font.SourceSansBold,
+                TextSize = 24,
+            }),
+            AutoFarmToggle = Roact.createElement(Button, {
+                text = "Auto Farm: " .. tostring(Settings.AutoFarm),
+                onActivated = function()
+                    Settings.AutoFarm = not Settings.AutoFarm
+                    props.updateUI()
                 end
-            end,
-        }),
-        InfiniteMoneyToggle = createToggleButton("Infinite Money", Settings.InfiniteMoney, function(button)
-            Settings.InfiniteMoney = not Settings.InfiniteMoney
-            button.BackgroundColor3 = Settings.InfiniteMoney and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        end),
-        PlayerLocationsToggle = createToggleButton("Player Locations", Settings.PlayerLocations, function(button)
-            Settings.PlayerLocations = not Settings.PlayerLocations
-            button.BackgroundColor3 = Settings.PlayerLocations and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        end),
-        AllGamepassesToggle = createToggleButton("All Gamepasses", Settings.AllGamepasses, function(button)
-            Settings.AllGamepasses = not Settings.AllGamepasses
-            button.BackgroundColor3 = Settings.AllGamepasses and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        end),
-    })
-
-    local screenGui = Roact.createElement("ScreenGui", {}, {
-        Frame = frame
-    })
-
-    Roact.mount(screenGui, game.Players.LocalPlayer:WaitForChild("PlayerGui"))
-end
-
--- Função para escolher a fruta no giro aleatório
-local function chooseRandomFruit()
-    local fruits = Settings.Fruits
-    if #fruits > 0 then
-        local fruit = fruits[math.random(#fruits)]
-        print("Fruta escolhida: " .. fruit)
-        return fruit
-    else
-        print("Nenhuma fruta disponível para escolher")
-        return nil
+            }),
+            InfiniteFragmentsToggle = Roact.createElement(Button, {
+                text = "Infinite Fragments: " .. tostring(Settings.InfiniteFragments),
+                onActivated = function()
+                    Settings.InfiniteFragments = not Settings.InfiniteFragments
+                    props.updateUI()
+                end
+            }),
+            AllItemsToggle = Roact.createElement(Button, {
+                text = "All Items: " .. tostring(Settings.AllItems),
+                onActivated = function()
+                    Settings.AllItems = not Settings.AllItems
+                    props.updateUI()
+                end
+            }),
+            GainLevelOnClick = Roact.createElement(Button, {
+                text = "Gain Level on Click",
+                onActivated = function()
+                    local player = game.Players.LocalPlayer
+                    if player and player:FindFirstChild("Level") then
+                        player.Level.Value = player.Level.Value + 1
+                    end
+                end
+            }),
+            InfiniteMoneyToggle = Roact.createElement(Button, {
+                text = "Infinite Money: " .. tostring(Settings.InfiniteMoney),
+                onActivated = function()
+                    Settings.InfiniteMoney = not Settings.InfiniteMoney
+                    props.updateUI()
+                end
+            }),
+            PlayerLocationsToggle = Roact.createElement(Button, {
+                text = "Player Locations: " .. tostring(Settings.PlayerLocations),
+                onActivated = function()
+                    Settings.PlayerLocations = not Settings.PlayerLocations
+                    props.updateUI()
+                end
+            }),
+            AllGamepassesToggle = Roact.createElement(Button, {
+                text = "All Gamepasses: " .. tostring(Settings.AllGamepasses),
+                onActivated = function()
+                    Settings.AllGamepasses = not Settings.AllGamepasses
+                    props.updateUI()
+                end
+            }),
+        })
     end
+
+    local function updateUI()
+        local ui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+        if ui then
+            local screenGui = ui:FindFirstChild("ScriptUI")
+            if screenGui then
+                screenGui:Destroy()
+            end
+            Roact.mount(Roact.createElement(SettingsUI, { updateUI = updateUI }), ui, "ScriptUI")
+        end
+    end
+
+    updateUI()
 end
 
 -- Função para gerar dinheiro infinito
@@ -147,7 +153,6 @@ end
 -- Função para simular o "Auto Farm"
 local function autoFarm()
     while Settings.AutoFarm do
-        -- Simulação básica: Mover o jogador para um local e realizar ações
         local player = game.Players.LocalPlayer
         if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             -- Simula a movimentação para um local
@@ -171,4 +176,39 @@ end
 
 -- Função para desbloquear todas as gamepasses
 local function unlockAllGamepasses()
-    local MarketplaceService = game:GetService("MarketplaceService
+    local MarketplaceService = game:GetService("MarketplaceService")
+    local player = game.Players.LocalPlayer
+    if player then
+        for _, gamepassId in pairs(GamepassIDs) do
+            local success, result = pcall(function()
+                MarketplaceService:PromptGamePassPurchase(player, gamepassId)
+            end)
+            if not success then
+                print("Falha ao tentar desbloquear gamepass com ID " .. tostring(gamepassId))
+            end
+        end
+    end
+end
+
+-- Funções principais
+local function startScript()
+    if Settings.AutoFarm then
+        spawn(autoFarm)
+    end
+
+    if Settings.InfiniteMoney then
+        spawn(generateInfiniteMoney)
+    end
+
+    if Settings.PlayerLocations then
+        spawn(showPlayerLocations)
+    end
+
+    if Settings.AllGamepasses then
+        spawn(unlockAllGamepasses)
+    end
+end
+
+-- Inicializar a interface e iniciar o script
+createUI()
+startScript()
