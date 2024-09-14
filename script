@@ -1,43 +1,30 @@
--- Importar a biblioteca Roact
+-- ScriptLib Module
 local Roact = require(game.ReplicatedStorage:WaitForChild("Roact"))
 
--- Configurações do Script
-local Settings = {
+local ScriptLib = {}
+
+-- Configurações padrão
+ScriptLib.Settings = {
     AutoFarm = true,
-    AutoFruit = true,
-    AutoBounty = true,
-    AutoChest = true,
-    AutoKill = true,
-    Spectate = true,
-    ShowFruitLocations = true,
-    SelectFruit = true,
-    InfiniteFragments = true,
-    AllItems = true,
-    FarmSpeed = 0.1, -- Velocidade do farm
-    FruitCheckInterval = 10, -- Intervalo de verificação de frutas (em segundos)
-    TeleportLocations = {
-        ["Start Island"] = Vector3.new(100, 10, 200),
-        ["Pirate Island"] = Vector3.new(500, 10, 600),
-        ["Marine Fortress"] = Vector3.new(1000, 10, 1200)
-    },
-    Fruits = {"Mango", "Apple", "Banana", "Orange", "Pineapple"}, -- Lista de frutas
-    InfiniteMoney = true, -- Geração de dinheiro infinito
-    PlayerLocations = true, -- Localização dos jogadores
-    AllGamepasses = true -- Todas as gamepasses, incluindo frutas permanentes
+    InfiniteMoney = true,
+    PlayerLocations = true,
+    AllGamepasses = true,
+    FarmSpeed = 0.1,
+    FruitCheckInterval = 10
 }
 
 -- IDs dos gamepasses
-local GamepassIDs = {
-    Yoru = 6028786, -- ID para Yoru
-    NotificadorDeFruta = 6738811, -- ID para Notificador de Fruta
-    TwoXDrop = 7578721, -- ID para 2x Drop
-    TwoXBounty = 6240746, -- ID para 2x Bounty
-    TwoXMoney = 6028662, -- ID para 2x Money
-    BarcoRapido = 6525589 -- ID para Barco Rápido
+ScriptLib.GamepassIDs = {
+    Yoru = 6028786,
+    NotificadorDeFruta = 6738811,
+    TwoXDrop = 7578721,
+    TwoXBounty = 6240746,
+    TwoXMoney = 6028662,
+    BarcoRapido = 6525589
 }
 
--- Função para criar a interface
-local function createUI()
+-- Função para criar a interface do usuário
+function ScriptLib.createUI()
     local function Button(props)
         return Roact.createElement("TextButton", {
             Size = UDim2.new(1, -20, 0, 50),
@@ -72,53 +59,30 @@ local function createUI()
                 TextSize = 24,
             }),
             AutoFarmToggle = Roact.createElement(Button, {
-                text = "Auto Farm: " .. tostring(Settings.AutoFarm),
+                text = "Auto Farm: " .. tostring(ScriptLib.Settings.AutoFarm),
                 onActivated = function()
-                    Settings.AutoFarm = not Settings.AutoFarm
+                    ScriptLib.Settings.AutoFarm = not ScriptLib.Settings.AutoFarm
                     props.updateUI()
-                end
-            }),
-            InfiniteFragmentsToggle = Roact.createElement(Button, {
-                text = "Infinite Fragments: " .. tostring(Settings.InfiniteFragments),
-                onActivated = function()
-                    Settings.InfiniteFragments = not Settings.InfiniteFragments
-                    props.updateUI()
-                end
-            }),
-            AllItemsToggle = Roact.createElement(Button, {
-                text = "All Items: " .. tostring(Settings.AllItems),
-                onActivated = function()
-                    Settings.AllItems = not Settings.AllItems
-                    props.updateUI()
-                end
-            }),
-            GainLevelOnClick = Roact.createElement(Button, {
-                text = "Gain Level on Click",
-                onActivated = function()
-                    local player = game.Players.LocalPlayer
-                    if player and player:FindFirstChild("Level") then
-                        player.Level.Value = player.Level.Value + 1
-                    end
                 end
             }),
             InfiniteMoneyToggle = Roact.createElement(Button, {
-                text = "Infinite Money: " .. tostring(Settings.InfiniteMoney),
+                text = "Infinite Money: " .. tostring(ScriptLib.Settings.InfiniteMoney),
                 onActivated = function()
-                    Settings.InfiniteMoney = not Settings.InfiniteMoney
+                    ScriptLib.Settings.InfiniteMoney = not ScriptLib.Settings.InfiniteMoney
                     props.updateUI()
                 end
             }),
             PlayerLocationsToggle = Roact.createElement(Button, {
-                text = "Player Locations: " .. tostring(Settings.PlayerLocations),
+                text = "Player Locations: " .. tostring(ScriptLib.Settings.PlayerLocations),
                 onActivated = function()
-                    Settings.PlayerLocations = not Settings.PlayerLocations
+                    ScriptLib.Settings.PlayerLocations = not ScriptLib.Settings.PlayerLocations
                     props.updateUI()
                 end
             }),
             AllGamepassesToggle = Roact.createElement(Button, {
-                text = "All Gamepasses: " .. tostring(Settings.AllGamepasses),
+                text = "All Gamepasses: " .. tostring(ScriptLib.Settings.AllGamepasses),
                 onActivated = function()
-                    Settings.AllGamepasses = not Settings.AllGamepasses
+                    ScriptLib.Settings.AllGamepasses = not ScriptLib.Settings.AllGamepasses
                     props.updateUI()
                 end
             }),
@@ -140,8 +104,8 @@ local function createUI()
 end
 
 -- Função para gerar dinheiro infinito
-local function generateInfiniteMoney()
-    while Settings.InfiniteMoney do
+function ScriptLib.generateInfiniteMoney()
+    while ScriptLib.Settings.InfiniteMoney do
         local player = game.Players.LocalPlayer
         if player and player:FindFirstChild("Money") then
             player.Money.Value = player.Money.Value + 1000
@@ -151,20 +115,20 @@ local function generateInfiniteMoney()
 end
 
 -- Função para simular o "Auto Farm"
-local function autoFarm()
-    while Settings.AutoFarm do
+function ScriptLib.autoFarm()
+    while ScriptLib.Settings.AutoFarm do
         local player = game.Players.LocalPlayer
         if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             -- Simula a movimentação para um local
             player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(100, 10, 200))
         end
-        wait(Settings.FarmSpeed)
+        wait(ScriptLib.Settings.FarmSpeed)
     end
 end
 
 -- Função para mostrar a localização dos jogadores
-local function showPlayerLocations()
-    while Settings.PlayerLocations do
+function ScriptLib.showPlayerLocations()
+    while ScriptLib.Settings.PlayerLocations do
         for _, player in pairs(game.Players:GetPlayers()) do
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 print(player.Name .. " está em: " .. tostring(player.Character.HumanoidRootPart.Position))
@@ -175,11 +139,11 @@ local function showPlayerLocations()
 end
 
 -- Função para desbloquear todas as gamepasses
-local function unlockAllGamepasses()
+function ScriptLib.unlockAllGamepasses()
     local MarketplaceService = game:GetService("MarketplaceService")
     local player = game.Players.LocalPlayer
     if player then
-        for _, gamepassId in pairs(GamepassIDs) do
+        for _, gamepassId in pairs(ScriptLib.GamepassIDs) do
             local success, result = pcall(function()
                 MarketplaceService:PromptGamePassPurchase(player, gamepassId)
             end)
@@ -190,25 +154,4 @@ local function unlockAllGamepasses()
     end
 end
 
--- Funções principais
-local function startScript()
-    if Settings.AutoFarm then
-        spawn(autoFarm)
-    end
-
-    if Settings.InfiniteMoney then
-        spawn(generateInfiniteMoney)
-    end
-
-    if Settings.PlayerLocations then
-        spawn(showPlayerLocations)
-    end
-
-    if Settings.AllGamepasses then
-        spawn(unlockAllGamepasses)
-    end
-end
-
--- Inicializar a interface e iniciar o script
-createUI()
-startScript()
+return ScriptLib
