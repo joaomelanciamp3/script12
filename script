@@ -1,157 +1,161 @@
--- ScriptLib Module
-local Roact = require(game.ReplicatedStorage:WaitForChild("Roact"))
+-- Carregar a biblioteca da UI
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/VisualRoblox/Roblox/main/UI-Libraries/Visual%20UI%20Library/Source.lua'))()
 
-local ScriptLib = {}
+-- Criar a janela principal
+local Window = Library:CreateWindow('Nome do Hub', 'Nome do Jogo', 'Visual UI Library', 'rbxassetid://10618928818', false, 'VisualUIConfigs', 'Padrão')
 
--- Configurações padrão
-ScriptLib.Settings = {
-    AutoFarm = true,
-    InfiniteMoney = true,
-    PlayerLocations = true,
-    AllGamepasses = true,
-    FarmSpeed = 0.1,
-    FruitCheckInterval = 10
-}
+-- Criar a aba principal
+local Tab = Window:CreateTab('Aba', true, 'rbxassetid://3926305904', Vector2.new(524, 44), Vector2.new(36, 36))
 
--- IDs dos gamepasses
-ScriptLib.GamepassIDs = {
-    Yoru = 6028786,
-    NotificadorDeFruta = 6738811,
-    TwoXDrop = 7578721,
-    TwoXBounty = 6240746,
-    TwoXMoney = 6028662,
-    BarcoRapido = 6525589
-}
+-- Criar a seção dentro da aba
+local Section = Tab:CreateSection('Seção')
 
--- Função para criar a interface do usuário
-function ScriptLib.createUI()
-    local function Button(props)
-        return Roact.createElement("TextButton", {
-            Size = UDim2.new(1, -20, 0, 50),
-            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-            TextColor3 = Color3.fromRGB(255, 165, 0),
-            Font = Enum.Font.SourceSansBold,
-            TextSize = 24,
-            Text = props.text,
-            [Roact.Event.Activated] = props.onActivated
-        })
-    end
+-- Criar rótulo e outros componentes
+local Label = Section:CreateLabel('Rótulo')
 
-    local function SettingsUI(props)
-        return Roact.createElement("Frame", {
-            Size = UDim2.new(0, 400, 0, 600),
-            Position = UDim2.new(0.5, -200, 0.5, -300),
-            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-            BorderSizePixel = 0,
-        }, {
-            UIListLayout = Roact.createElement("UIListLayout", {
-                Padding = UDim.new(0, 10),
-                FillDirection = Enum.FillDirection.Vertical,
-                HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                VerticalAlignment = Enum.VerticalAlignment.Top,
-            }),
-            Title = Roact.createElement("TextLabel", {
-                Text = "Script Settings",
-                Size = UDim2.new(1, 0, 0, 50),
-                BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-                TextColor3 = Color3.fromRGB(255, 165, 0),
-                Font = Enum.Font.SourceSansBold,
-                TextSize = 24,
-            }),
-            AutoFarmToggle = Roact.createElement(Button, {
-                text = "Auto Farm: " .. tostring(ScriptLib.Settings.AutoFarm),
-                onActivated = function()
-                    ScriptLib.Settings.AutoFarm = not ScriptLib.Settings.AutoFarm
-                    props.updateUI()
-                end
-            }),
-            InfiniteMoneyToggle = Roact.createElement(Button, {
-                text = "Infinite Money: " .. tostring(ScriptLib.Settings.InfiniteMoney),
-                onActivated = function()
-                    ScriptLib.Settings.InfiniteMoney = not ScriptLib.Settings.InfiniteMoney
-                    props.updateUI()
-                end
-            }),
-            PlayerLocationsToggle = Roact.createElement(Button, {
-                text = "Player Locations: " .. tostring(ScriptLib.Settings.PlayerLocations),
-                onActivated = function()
-                    ScriptLib.Settings.PlayerLocations = not ScriptLib.Settings.PlayerLocations
-                    props.updateUI()
-                end
-            }),
-            AllGamepassesToggle = Roact.createElement(Button, {
-                text = "All Gamepasses: " .. tostring(ScriptLib.Settings.AllGamepasses),
-                onActivated = function()
-                    ScriptLib.Settings.AllGamepasses = not ScriptLib.Settings.AllGamepasses
-                    props.updateUI()
-                end
-            }),
-        })
-    end
+local Paragraph = Section:CreateParagraph('Parágrafo', 'Conteúdo')
 
-    local function updateUI()
-        local ui = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
-        if ui then
-            local screenGui = ui:FindFirstChild("ScriptUI")
-            if screenGui then
-                screenGui:Destroy()
-            end
-            Roact.mount(Roact.createElement(SettingsUI, { updateUI = updateUI }), ui, "ScriptUI")
+local Button = Section:CreateButton('Botão', function()
+    print('Botão Pressionado')
+end)
+
+local Slider = Section:CreateSlider('Deslizador', 1, 100, 50, Color3.fromRGB(0, 125, 255), function(Value)
+    print(Value)
+end)
+
+local Textbox = Section:CreateTextbox('Caixa de Texto', 'Entrada', function(Value)
+    print(Value)
+end)
+
+local Keybind = Section:CreateKeybind('Atalho', 'F', function()
+    print('Tecla Pressionada')
+end)
+
+local Toggle = Section:CreateToggle('Alternar', true, Color3.fromRGB(0, 125, 255), 0.25, function(Value)
+    print(Value)
+end)
+
+local Dropdown = Section:CreateDropdown('Dropdown', {'1', '2', '3', '4', '5'}, '1', 0.25, function(Value)
+    print(Value)
+end)
+
+local Colorpicker = Section:CreateColorpicker('Seletor de Cor', Color3.fromRGB(0, 125, 255), 0.25, function(Value)
+    print(Value)
+end)
+
+local Image = Section:CreateImage('Imagem', 'rbxassetid://10618928818', UDim2.new(0, 200, 0, 200))
+
+-- Criar seção de funções de atualização
+local UpdateSection = Tab:CreateSection('Funções de Atualização')
+
+local LabelBox = UpdateSection:CreateTextbox('Atualizar Rótulo', 'Novo Texto', function(Value)
+    Label:UpdateLabel(Value, true)
+end)
+
+local ParagraphBox = UpdateSection:CreateTextbox('Atualizar Parágrafo', 'Novo Texto', function(Value)
+    Paragraph:UpdateParagraph('Parágrafo', Value)
+end)
+
+local UpdateDropdown1 = UpdateSection:CreateButton('Atualizar Dropdown 1', function()
+    Dropdown:UpdateDropdown({'1', '2', '3'})
+end)
+
+local UpdateDropdown2 = UpdateSection:CreateButton('Atualizar Dropdown 2', function()
+    Dropdown:UpdateDropdown({'1', '2', '3', '4', '5', '6'})
+end)
+
+local UpdateImage = UpdateSection:CreateButton('Atualizar Imagem', function()
+    Image:UpdateImage('rbxassetid://10580575081', UDim2.new(0, 200, 0, 200))
+end)
+
+-- Criar aba de funções da biblioteca
+local LibraryFunctions = Window:CreateTab('Funções da Biblioteca', false, 'rbxassetid://3926305904', Vector2.new(524, 44), Vector2.new(36, 36))
+
+local UIFunctions = LibraryFunctions:CreateSection('Funções da UI')
+
+local DestroyButton = UIFunctions:CreateButton('Destruir UI', function()
+    Library:DestroyUI()
+end)
+
+local ToggleKeybind = UIFunctions:CreateKeybind('Alternar UI', 'E', function()
+    Library:ToggleUI()
+end)
+
+local TextboxKeybind = UIFunctions:CreateTextbox('Notificação', 'Texto', function(Value)
+    Library:CreateNotification('Notificação', Value, 5)
+end)
+
+local TransparencySlider = UIFunctions:CreateSlider('Transparência', 0, 100, 0, Color3.fromRGB(0, 125, 255), function(Value)
+    Library:SetTransparency(Value / 100, true)
+end)
+
+local TextPromptButton = UIFunctions:CreateButton('Criar Prompt de Texto', function()
+    Library:CreatePrompt('Texto', 'Título do Prompt', 'Texto do Prompt', 'OK')
+end)
+
+local OneButtonPromptButton = UIFunctions:CreateButton('Criar Prompt com Um Botão', function()
+    Library:CreatePrompt('OneButton', 'Título do Prompt', 'Texto do Prompt', {
+        'OK',
+        function()
+            print('Botão do Prompt Pressionado')
         end
-    end
+    })
+end)
 
-    updateUI()
-end
-
--- Função para gerar dinheiro infinito
-function ScriptLib.generateInfiniteMoney()
-    while ScriptLib.Settings.InfiniteMoney do
-        local player = game.Players.LocalPlayer
-        if player and player:FindFirstChild("Money") then
-            player.Money.Value = player.Money.Value + 1000
+local TwoButtonPromptButton = UIFunctions:CreateButton('Criar Prompt com Dois Botões', function()
+    Library:CreatePrompt('TwoButton', 'Título do Prompt', 'Texto do Prompt', {
+        'Botão 1',
+        function()
+            print('Botão 1')
+        end,
+        'Botão 2',
+        function()
+            print('Botão 2')
         end
-        wait(1)
-    end
-end
+    })
+end)
 
--- Função para simular o "Auto Farm"
-function ScriptLib.autoFarm()
-    while ScriptLib.Settings.AutoFarm do
-        local player = game.Players.LocalPlayer
-        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            -- Simula a movimentação para um local
-            player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(100, 10, 200))
-        end
-        wait(ScriptLib.Settings.FarmSpeed)
-    end
-end
+-- Criar seção de configuração
+local ConfigSection = LibraryFunctions:CreateSection('Configuração')
 
--- Função para mostrar a localização dos jogadores
-function ScriptLib.showPlayerLocations()
-    while ScriptLib.Settings.PlayerLocations do
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                print(player.Name .. " está em: " .. tostring(player.Character.HumanoidRootPart.Position))
-            end
-        end
-        wait(10)
-    end
-end
+local ConfigNameString = ''
+local ConfigName = ConfigSection:CreateTextbox('Nome da Configuração', 'Entrada', function(Value)
+    ConfigNameString = Value
+end)
 
--- Função para desbloquear todas as gamepasses
-function ScriptLib.unlockAllGamepasses()
-    local MarketplaceService = game:GetService("MarketplaceService")
-    local player = game.Players.LocalPlayer
-    if player then
-        for _, gamepassId in pairs(ScriptLib.GamepassIDs) do
-            local success, result = pcall(function()
-                MarketplaceService:PromptGamePassPurchase(player, gamepassId)
-            end)
-            if not success then
-                print("Falha ao tentar desbloquear gamepass com ID " .. tostring(gamepassId))
-            end
-        end
-    end
-end
+local SaveConfigButton = ConfigSection:CreateButton('Salvar Configuração', function()
+    Library:SaveConfig(ConfigNameString)
+end)
 
-return ScriptLib
+local SelectedConfig = ''
+local ConfigsDropdown = ConfigSection:CreateDropdown('Configurações', Library:GetConfigs(), nil, 0.25, function(Value)
+    SelectedConfig = Value
+end)
+
+local DeleteConfigButton = ConfigSection:CreateButton('Deletar Configuração', function()
+    Library:DeleteConfig(SelectedConfig)
+end)
+
+local LoadConfigButton = ConfigSection:CreateButton('Carregar Configuração', function()
+    Library:LoadConfig(SelectedConfig)
+end)
+
+local RefreshConfigsButton = ConfigSection:CreateButton('Atualizar', function()
+    ConfigsDropdown:UpdateDropdown(Library:GetConfigs())
+end)
+
+-- Criar seção de temas
+local ThemesSection = LibraryFunctions:CreateSection('Temas')
+
+local ThemesDropdown = ThemesSection:CreateDropdown('Temas', Library:GetThemes(), nil, 0.25, function(Value)
+    Library:ChangeTheme(Value)
+end)
+
+-- Criar seção de cores personalizadas
+local ColorSection = LibraryFunctions:CreateSection('Cores Personalizadas')
+
+for Index, CurrentColor in next, Library:ReturnTheme() do
+    ColorSection:CreateColorpicker(Index, CurrentColor, 0.25, function(Color)
+        Library:ChangeColor(Index, Color)
+    end, {true})
+end
