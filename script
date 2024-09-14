@@ -1,0 +1,174 @@
+-- Importar a biblioteca Roact
+local Roact = require(game.ReplicatedStorage:WaitForChild("Roact"))
+
+-- Configurações do Script
+local Settings = {
+    AutoFarm = true,
+    AutoFruit = true,
+    AutoBounty = true,
+    AutoChest = true,
+    AutoKill = true,
+    Spectate = true,
+    ShowFruitLocations = true,
+    SelectFruit = true,
+    InfiniteFragments = true,
+    AllItems = true,
+    FarmSpeed = 0.1, -- Velocidade do farm
+    FruitCheckInterval = 10, -- Intervalo de verificação de frutas (em segundos)
+    TeleportLocations = {
+        ["Start Island"] = Vector3.new(100, 10, 200),
+        ["Pirate Island"] = Vector3.new(500, 10, 600),
+        ["Marine Fortress"] = Vector3.new(1000, 10, 1200)
+    },
+    Fruits = {"Mango", "Apple", "Banana", "Orange", "Pineapple"}, -- Lista de frutas
+    InfiniteMoney = true, -- Geração de dinheiro infinito
+    PlayerLocations = true, -- Localização dos jogadores
+    AllGamepasses = true -- Todas as gamepasses, incluindo frutas permanentes
+}
+
+-- Função para atualizar o texto do botão
+local function updateButtonText(button, settingName)
+    button.Text = settingName .. ": " .. tostring(Settings[settingName])
+end
+
+-- Função para criar a interface
+local function createUI()
+    local function createToggleButton(settingName, initialValue, callback)
+        return Roact.createElement("TextButton", {
+            Text = settingName .. ": " .. tostring(initialValue),
+            Size = UDim2.new(1, -20, 0, 50),
+            BackgroundColor3 = initialValue and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0),
+            TextColor3 = Color3.fromRGB(0, 0, 0),
+            Font = Enum.Font.SourceSansBold,
+            TextSize = 24,
+            [Roact.Event.Activated] = function(button)
+                callback(button)
+                updateButtonText(button, settingName)
+            end,
+        })
+    end
+
+    local frame = Roact.createElement("Frame", {
+        Size = UDim2.new(0, 400, 0, 600),
+        Position = UDim2.new(0.5, -200, 0.5, -300),
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+        BorderSizePixel = 0,
+        BorderColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 0.5,
+        ZIndex = 2
+    }, {
+        UIListLayout = Roact.createElement("UIListLayout", {
+            Padding = UDim.new(0, 10),
+            FillDirection = Enum.FillDirection.Vertical,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            VerticalAlignment = Enum.VerticalAlignment.Top,
+        }),
+        Title = Roact.createElement("TextLabel", {
+            Text = "Script Settings",
+            Size = UDim2.new(1, 0, 0, 50),
+            BackgroundColor3 = Color3.fromRGB(0, 255, 0),
+            TextColor3 = Color3.fromRGB(0, 0, 0),
+            Font = Enum.Font.SourceSansBold,
+            TextSize = 24,
+            TextStrokeTransparency = 0.5,
+            TextWrapped = true,
+        }),
+        AutoFarmToggle = createToggleButton("Auto Farm", Settings.AutoFarm, function(button)
+            Settings.AutoFarm = not Settings.AutoFarm
+            button.BackgroundColor3 = Settings.AutoFarm and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        end),
+        InfiniteFragmentsToggle = createToggleButton("Infinite Fragments", Settings.InfiniteFragments, function(button)
+            Settings.InfiniteFragments = not Settings.InfiniteFragments
+            button.BackgroundColor3 = Settings.InfiniteFragments and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        end),
+        AllItemsToggle = createToggleButton("All Items", Settings.AllItems, function(button)
+            Settings.AllItems = not Settings.AllItems
+            button.BackgroundColor3 = Settings.AllItems and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        end),
+        GainLevelOnClick = Roact.createElement("TextButton", {
+            Text = "Gain Level on Click",
+            Size = UDim2.new(1, -20, 0, 50),
+            BackgroundColor3 = Color3.fromRGB(0, 255, 0),
+            TextColor3 = Color3.fromRGB(0, 0, 0),
+            Font = Enum.Font.SourceSansBold,
+            TextSize = 24,
+            [Roact.Event.Activated] = function()
+                local player = game.Players.LocalPlayer
+                if player and player:FindFirstChild("Level") then
+                    player.Level.Value = player.Level.Value + 1
+                end
+            end,
+        }),
+        InfiniteMoneyToggle = createToggleButton("Infinite Money", Settings.InfiniteMoney, function(button)
+            Settings.InfiniteMoney = not Settings.InfiniteMoney
+            button.BackgroundColor3 = Settings.InfiniteMoney and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        end),
+        PlayerLocationsToggle = createToggleButton("Player Locations", Settings.PlayerLocations, function(button)
+            Settings.PlayerLocations = not Settings.PlayerLocations
+            button.BackgroundColor3 = Settings.PlayerLocations and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        end),
+        AllGamepassesToggle = createToggleButton("All Gamepasses", Settings.AllGamepasses, function(button)
+            Settings.AllGamepasses = not Settings.AllGamepasses
+            button.BackgroundColor3 = Settings.AllGamepasses and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+        end),
+    })
+
+    local screenGui = Roact.createElement("ScreenGui", {}, {
+        Frame = frame
+    })
+
+    Roact.mount(screenGui, game.Players.LocalPlayer:WaitForChild("PlayerGui"))
+end
+
+-- Função para escolher a fruta no giro aleatório
+local function chooseRandomFruit()
+    local fruits = Settings.Fruits
+    if #fruits > 0 then
+        local fruit = fruits[math.random(#fruits)]
+        print("Fruta escolhida: " .. fruit)
+        return fruit
+    else
+        print("Nenhuma fruta disponível para escolher")
+        return nil
+    end
+end
+
+-- Função para gerar dinheiro infinito
+local function generateInfiniteMoney()
+    while Settings.InfiniteMoney do
+        local player = game.Players.LocalPlayer
+        if player and player:FindFirstChild("Money") then
+            player.Money.Value = player.Money.Value + 1000
+        end
+        wait(1)
+    end
+end
+
+-- Função para simular o "Auto Farm"
+local function autoFarm()
+    while Settings.AutoFarm do
+        -- Simulação básica: Mover o jogador para um local e realizar ações
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            -- Simula a movimentação para um local
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(100, 10, 200))
+        end
+        wait(Settings.FarmSpeed)
+    end
+end
+
+-- Função para mostrar a localização dos jogadores
+local function showPlayerLocations()
+    while Settings.PlayerLocations do
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                print(player.Name .. " está em: " .. tostring(player.Character.HumanoidRootPart.Position))
+            end
+        end
+        wait(10)
+    end
+end
+
+-- Função para desbloquear todas as gamepasses
+local function unlockAllGamepasses()
+    local MarketplaceService = game:GetService("MarketplaceService
